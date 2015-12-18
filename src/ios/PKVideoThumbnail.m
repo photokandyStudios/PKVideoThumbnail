@@ -29,7 +29,8 @@
 @implementation PKVideoThumbnail
 
 BOOL extractVideoThumbnail ( NSString *theSourceVideoName,
-                             NSString *theTargetImageName )
+                             NSString *theTargetImageName,
+                             NSInteger thePosition )
 {
 
     UIImage *thumbnail;
@@ -50,10 +51,10 @@ BOOL extractVideoThumbnail ( NSString *theSourceVideoName,
     MPMoviePlayerController *mp = [[MPMoviePlayerController alloc]
       initWithContentURL: url ];
     mp.shouldAutoplay = NO;
-    mp.initialPlaybackTime = 1;
-    mp.currentPlaybackTime = 1;
+    mp.initialPlaybackTime = thePosition;
+    mp.currentPlaybackTime = thePosition;
     // get the thumbnail
-    thumbnail = [mp thumbnailImageAtTime:1
+    thumbnail = [mp thumbnailImageAtTime:thePosition
                              timeOption:MPMovieTimeOptionNearestKeyFrame];
     [mp stop];
 
@@ -70,8 +71,9 @@ BOOL extractVideoThumbnail ( NSString *theSourceVideoName,
     @try {
         NSString* theSourceVideoName = [command.arguments objectAtIndex:0];
         NSString* theTargetImageName = [command.arguments objectAtIndex:1];
+        NSInteger thePosition = [[command.arguments objectAtIndex:2] intValue];
         
-        if ( extractVideoThumbnail(theSourceVideoName, theTargetImageName) )
+        if ( extractVideoThumbnail(theSourceVideoName, theTargetImageName, thePosition) )
         {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:theTargetImageName];
             javaScript = [pluginResult toSuccessCallbackString:command.callbackId];
