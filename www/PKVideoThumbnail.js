@@ -21,13 +21,13 @@
 
 var PKVideoThumbnail = PKVideoThumbnail || {};
 
-PKVideoThumbnail.createThumbnail = function ( source, target, success, failure )
+PKVideoThumbnail.createThumbnail = function ( source, target, position, success, failure )
 {
   console.log ("Attempting to extract the thumbnail from " + source + " and save it to " + target );
   cordova.exec(success, failure,
               "PKVideoThumbnail",
               "createThumbnail",
-              [source, target]);
+              [source, target, position]);
 }
 
 module.exports = PKVideoThumbnail;
