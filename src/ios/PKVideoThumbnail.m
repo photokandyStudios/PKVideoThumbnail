@@ -23,69 +23,153 @@
 #import <Cordova/CDVPluginResult.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVAsset.h>
-
+#import "CDVFile.h"
 #import <MediaPlayer/MediaPlayer.h>
 
 @implementation PKVideoThumbnail
 
-BOOL extractVideoThumbnail ( NSString *theSourceVideoName,
-                             NSString *theTargetImageName )
+- (NSURL *) obtainURLForPath:(NSString *)path {
+    if ([path hasPrefix:@"cdvfile://"]) {
+        // use the File API to get the appropriate URL, given the path
+        // based on media plugin's code for obtaining file paths
+        CDVFile *filePlugin = [self.commandDelegate getCommandInstance:@"File"];
+        CDVFilesystemURL *fsURL = [CDVFilesystemURL fileSystemURLWithString:path];
+        NSString *filePath = [filePlugin filesystemPathForURL:fsURL];
+        if (filePath) {
+            return [NSURL URLWithString:[[@"file://" stringByAppendingString:filePath] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        } else {
+            return [NSURL URLWithString:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        }
+    } else {
+        if ([path rangeOfString:@"://"].location == NSNotFound) {
+            return [NSURL URLWithString:[[@"file://" stringByAppendingString:[self.commandDelegate pathForResource:path]] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            
+            //            return [NSURL URLWithString:[[@"file://localhost/" stringByAppendingString:path]
+            //                          stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        }
+        else {
+            return [NSURL URLWithString:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        }
+    }
+}
+
+- (CDVPluginResult *) extractThumbnailAtPath:(NSString *)sourcePath toPath:(NSString *)targetPath withOptions:(NSDictionary *)options
 {
 
     UIImage *thumbnail;
-    NSURL *url;
-    NSString *revisedTargetImageName = [[theTargetImageName stringByReplacingOccurrencesOfString:@"file://" withString:@""] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-  
-    if ( [theSourceVideoName rangeOfString:@"://"].location == NSNotFound )
-    {
-      url = [NSURL URLWithString:[[@"file://localhost" stringByAppendingString:theSourceVideoName]
-                                 stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
-    else
-    {
-      url = [NSURL URLWithString:[theSourceVideoName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
+    NSURL *url = [self obtainURLForPath:sourcePath];
+    NSURL *target = [self obtainURLForPath:targetPath];
+    NSString *revisedTargetPath = [target.absoluteString stringByReplacingOccurrencesOfString:@"file://" withString:@""];
     
-    // BASED ON http://stackoverflow.com/a/6432050 //
-    MPMoviePlayerController *mp = [[MPMoviePlayerController alloc]
-      initWithContentURL: url ];
-    mp.shouldAutoplay = NO;
-    mp.initialPlaybackTime = 1;
-    mp.currentPlaybackTime = 1;
-    // get the thumbnail
-    thumbnail = [mp thumbnailImageAtTime:1
-                             timeOption:MPMovieTimeOptionNearestKeyFrame];
-    [mp stop];
+    /*[[targetPath stringByReplacingOccurrencesOfString:@"file://" withString:@""] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    if ([sourcePath rangeOfString:@"://"].location == NSNotFound) {
+        url = [NSURL URLWithString:[[@"file://localhost" stringByAppendingString:sourcePath]
+                                    stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }
+    else {
+        url = [NSURL URLWithString:[sourcePath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }
+    */
 
-    // write out the thumbnail; a return of NO will be a failure.
-    return [UIImageJPEGRepresentation ( thumbnail, 1.0) writeToFile:revisedTargetImageName atomically:YES];
+    // from http://stackoverflow.com/q/9145968 by Mx Gherkins
+    // and http://www.catehuston.com/blog/2015/07/29/ios-getting-a-thumbnail-for-a-video/
+
+    AVAsset *asset = [AVAsset assetWithURL:url];
+    //AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:url options:nil];
+    AVAssetImageGenerator *generate = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+    //AVAssetImageGenerator *generate = [[AVAssetImageGenerator alloc] initWithAsset:asset];
+    generate.appliesPreferredTrackTransform = YES; // http://stackoverflow.com/a/9146246 by djromero
+
+    NSError *err = NULL;
+    Float64 position = [[options objectForKey:@"position"] floatValue];
+    CMTime time = CMTimeMakeWithSeconds(position, 1000);
+    CGImageRef imgRef = [generate copyCGImageAtTime:time actualTime:NULL error:&err];
+    if (err) {
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Could not extract thumbnail from %@ at time %f; err=%@", url, position, err]];
+    }
+    thumbnail = [[UIImage alloc] initWithCGImage:imgRef];
+    CGImageRelease(imgRef);
+
+    if (!thumbnail) {
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Didn't get a thumbnail from CGImage using %@", url]];
+    }
+
+    // if we have a thumbnail, we now need to determine if it needs resized...
+    NSDictionary *dimensions = [options objectForKey:@"resize"];
+    if (dimensions) {
+        // from http://nshipster.com/image-resizing/
+        Float64 newWidth = [[dimensions objectForKey:@"width"] floatValue];
+        Float64 newHeight = [[dimensions objectForKey:@"height"] floatValue];
+        CGRect targetFrame = CGRectMake(0, 0, newWidth, newHeight);
+        CGRect targetFrameWithAspectRatio = AVMakeRectWithAspectRatioInsideRect(thumbnail.size, targetFrame);
+
+        UIGraphicsBeginImageContextWithOptions(targetFrameWithAspectRatio.size, true, 0.0);
+        [thumbnail drawInRect:CGRectMake(0.0, 0.0,
+                                         targetFrameWithAspectRatio.size.width,
+                                         targetFrameWithAspectRatio.size.height)];
+        thumbnail = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+
+    Float64 quality = [[options objectForKey:@"quality"] floatValue];
+
+    // if mode is file, we'll write it out to a file as a JPEG
+    if ([[[options objectForKey:@"mode"] lowercaseString] isEqualToString:@"file"]) {
+        // write out the thumbnail; a return of NO will be a failure.
+        if([UIImageJPEGRepresentation(thumbnail, quality) writeToFile:revisedTargetPath atomically:YES]) {
+           return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat:@"%@", targetPath]];
+        } else {
+            return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Could not create thumbnail. Source: %@, Target: %@, Modified Target: %@", url, targetPath, revisedTargetPath]];
+        };
+    } else {
+        // return the image data to the callback
+        NSData *imageData = UIImageJPEGRepresentation(thumbnail, quality);
+        if ([[[options objectForKey:@"mode"] lowercaseString] isEqualToString:@"array"]) {
+            return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArrayBuffer:imageData];
+        } else {
+            return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[@"data:image/jpeg;base64," stringByAppendingString:[imageData base64EncodedStringWithOptions:0]]];
+        }
+    }
 }
-
 
 - (void) createThumbnail:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
-    NSString* javaScript = nil;
 
     @try {
-        NSString* theSourceVideoName = [command.arguments objectAtIndex:0];
-        NSString* theTargetImageName = [command.arguments objectAtIndex:1];
-        
-        if ( extractVideoThumbnail(theSourceVideoName, theTargetImageName) )
-        {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:theTargetImageName];
-            javaScript = [pluginResult toSuccessCallbackString:command.callbackId];
+        NSString* theSourceVideoName = [command argumentAtIndex:0];
+        NSString* theTargetImageName = [command argumentAtIndex:1];
+
+        NSMutableDictionary* options = nil;
+        options = [command argumentAtIndex:2 withDefault:nil];
+        if (options != nil) {
+            options = [NSMutableDictionary dictionaryWithDictionary:options];
+        } else {
+            options = [NSMutableDictionary dictionaryWithCapacity:1];
         }
-        else
-        {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:theTargetImageName];
-            javaScript = [pluginResult toErrorCallbackString:command.callbackId];
+
+        // supply default options if none provided
+        if (![options objectForKey:@"position"]) {
+            // if not supplied, we default to 1 second into the video
+            [options setObject:[NSNumber numberWithFloat:1.0] forKey:@"position"];
         }
+        if (![options objectForKey:@"mode"]) {
+            // if not supplied, we default to "file" mode (rather than "data")
+            [options setObject:@"file" forKey: @"mode"];
+        }
+        if (![options objectForKey:@"quality"]) {
+            // if not supplied, thumbnail quality is 80%.
+            [options setObject:[NSNumber numberWithFloat:0.8] forKey:@"quality"];
+        }
+
+        pluginResult = [self extractThumbnailAtPath:theSourceVideoName toPath:theTargetImageName withOptions:options];
     } @catch (NSException* exception) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_JSON_EXCEPTION messageAsString:[exception reason]];
-        javaScript = [pluginResult toErrorCallbackString:command.callbackId];
     }
 
-    [self writeJavascript:javaScript];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 @end
+
+
+

@@ -1,8 +1,10 @@
 # PKVideoThumbnail
 
 @author Kerri Shotts
+
 @email kerrishotts@gmail.com
-@version 1.0.0
+
+@version 2.0.0
 
 This plugin lets you extract a thumbnail from a video file. The video file must be
 supported by the platform, and the thumbnail will be written to a location you 
@@ -50,6 +52,19 @@ Add the plugin using Cordova's CLI:
 cordova plugin add com.photokandy.videothumbnail
 ```
 
+## Features
+
+The plugin supports the following abilities:
+
+* Request the thumbnail at a specific resolution (if supported by the platform)
+
+* Request a thumbnail from a specific timestamp within the video
+
+* Pass the thumbnail in an ArrayBuffer or Base64 String rather than storing to a file
+
+* Use cdvfile:// instead of file://
+
+
 ## Use
 
 All interaction with the library is through `window.PKVideoThumbnail`. To request a thumbnail from a video file, simply:
@@ -58,8 +73,12 @@ All interaction with the library is through `window.PKVideoThumbnail`. To reques
 window.PKVideoThumbnail.createThumbnail ( sourceVideoPath, targetThumbnailPath, success, failure );
 ```
 
-Both the source and target path should be a `file://` absolute URL. If using `file://localhost/`, you should eliminate `localhost` from the `targetThumbnailPath` for proper functionality. The intermediate directories specified in `targetThumbnailPath` must also exist (missing directories are *not* created).
+Both the source and target path should be a `file://` absolute URL. If using `file://localhost/`, you should eliminate `localhost`
+from the `targetThumbnailPath` for proper functionality. The intermediate directories specified in `targetThumbnailPath` must also
+exist (missing directories are *not* created).
 
-The `success` method receives the `targetThumbnailPath` in case the method needs to do further work on the image. The `error` method often receives the `targetThumbnailPath` on iOS, but will receive an error message indicating cause of failure on Android. 
+The `success` method receives the `targetThumbnailPath` in case the method needs to do further work on the image. The `error` method
+often receives the `targetThumbnailPath` on iOS, but will receive an error message indicating cause of failure on Android.
 
-The thumbnail obtained is platform and video-specific. There is no support for requesting thumbnails of different sizes; if you need this, you can alter the thumbnail after it is written out to storage.
+The thumbnail obtained is platform and video-specific. There is no support for requesting thumbnails of different sizes; if you need
+this, you can alter the thumbnail after it is written out to storage.
