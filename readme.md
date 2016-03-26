@@ -10,13 +10,15 @@ This plugin lets you extract a thumbnail from a video file. The video file must 
 supported by the platform, and the thumbnail will be written to a location you 
 specify. 
 
-Supports: iOS 6+, Android 2.3+
+Supports: iOS 6+, Android API Level 17+
 
 The license is MIT, so feel free to use, enhance, etc. If you do make changes that would
 benefit the community, it would be great if you would contribute them back to the original
 plugin, but that is not required.
 
 ## License
+
+MIT
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this
 software and associated documentation files (the "Software"), to deal in the Software
@@ -41,15 +43,16 @@ Available on [Github](https://github.com/photokandyStudios/PKVideoThumbnail). Co
 
 ## Minimum Requirements
 
-* Cordova 2.9 or higher (tested 3.4)
-* iOS 6 or higher; Android 2.3 or higher
+* Cordova-ios 4.x or higher (tested 4.0.1)
+* Cordova-android 4.x or higher (tested 5.1.1)
+* iOS 6 or higher; Android API 17+ or higher
 
 ## Installation
 
 Add the plugin using Cordova's CLI:
 
 ```
-cordova plugin add com.photokandy.videothumbnail
+cordova plugin cordova-plugin-photokandy-video-thumbnail --save
 ```
 
 ## Features
@@ -58,27 +61,79 @@ The plugin supports the following abilities:
 
 * Request the thumbnail at a specific resolution (if supported by the platform)
 
-* Request a thumbnail from a specific timestamp within the video
+* Request a thumbnail from a specific timestamp within the video (if supported by the platform)
 
-* Pass the thumbnail in an ArrayBuffer or Base64 String rather than storing to a file
+* Pass the thumbnail in an ArrayBuffer or Base64 String instead of storing to a file
 
-* Use cdvfile:// instead of file://
-
+* Supports cdvfile://
 
 ## Use
 
 All interaction with the library is through `window.PKVideoThumbnail`. To request a thumbnail from a video file, simply:
 
 ```
-window.PKVideoThumbnail.createThumbnail ( sourceVideoPath, targetThumbnailPath, success, failure );
+window.PKVideoThumbnail.createThumbnail ( sourceVideoPath, targetThumbnailPath, [options,] success, failure );
 ```
 
-Both the source and target path should be a `file://` absolute URL. If using `file://localhost/`, you should eliminate `localhost`
-from the `targetThumbnailPath` for proper functionality. The intermediate directories specified in `targetThumbnailPath` must also
-exist (missing directories are *not* created).
+You can specify the following URI formats for source and target:
 
-The `success` method receives the `targetThumbnailPath` in case the method needs to do further work on the image. The `error` method
-often receives the `targetThumbnailPath` on iOS, but will receive an error message indicating cause of failure on Android.
+* `file://` (if using `file:///localhost/...`, eliminate `localhost` from the string)
+* `cdvfile://`
 
-The thumbnail obtained is platform and video-specific. There is no support for requesting thumbnails of different sizes; if you need
-this, you can alter the thumbnail after it is written out to storage.
+The `options` object can specify an alternate size for the thumbnail, and can also specify quality and timestamp. It can also specify the processing mode of the plugin.
+
+* `options.mode` -- the processing mode for the plugin.
+    * `file` -- saves the thumbnail to the file specified. If not specified, this is the default.
+    * `array` -- returns an arraybuffer to the callback routine. In this case, `targetThumbnailPath` is ignored, but must be specified. You can use an empty string.
+    * `base64` -- returns a Base64-encoded string suitable for an inline image. `targetThumbnailPath` is ignored, but must be specified. You can use an empty string.
+* `options.position` -- the timestamp from which the thumbnail should be extracted. This is in seconds. Not supported on Android. 1s is the default.
+* `options.quality` -- the quality of the resulting JPEG from 0 - 1. 0.8 is the default.
+* `options.resize` -- resize the thumbnail whilst maintaining aspect ratio
+    * `options.resize.width` -- the maximum width of the resulting thumbnail
+    * `options.resize.height` -- the maximum height of the resulting thumbnail
+    * The resulting thumbnail will fit within the desired size, but may not match exactly, depending upon aspect ratio.
+    * On Android, the width and height must neither exceed 512x384 nor the resolution of the video, or an error is generated.
+
+Should the operation succeed, the `success` callback is called with the transformed target file name in case additional work needs to be performed. 
+
+Should the operation fail, the `failure` callback is called with the reason of the failure. Failure messages are platform-specific. See each platform's quirks below.
+
+If you'd rather use promises, simply omit the callbacks -- for example:
+
+```js
+window.PKVideoThumbnail.createThumbnail ( sourceVideoPath, targetThumbnailPath, options)
+      .then((data) => {})
+      .catch((err) => {});
+```
+
+### iOS Quirks
+
+* You can load from the application bundle. To do so, don't use any URI scheme. For example, `/assets/sample.mov` would load from the app's bundle.
+
+* A negative quality will actually succeed, although the results are undefined.
+
+#### Error Messages
+
+* Could not extract thumbnail from %@ at time %f; err=%@
+* Didn't get a thumbnail from CGImage using %@
+* Could not create thumbnail. Source: %@, Target: %@, Modified Target: %@
+
+### Android Quirks
+
+* You cannot load from your application bundle. If you must, you'll need to copy the files to a temporary location first.
+
+* A negative quality will generate an error.
+
+* Specifying a desired thumbnail size larger than 512x384 or the source video will generate an error.
+
+* Currently does not support requesting a thumbnail from a specific timestamp. Doing so will be ignored and no error thrown.
+
+#### Error messages
+
+* Couldn't read video at %s
+* Could not resize thumbnail; width or height out of range?
+* Could not compress thumbnail to a JPEG of the desired quality.
+* Could not save thumbnail to %s
+* Could not save thumbnail; target not writeable
+* I/O exception saving thumbnail
+* JSON Exception

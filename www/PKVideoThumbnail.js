@@ -23,10 +23,37 @@ var PKVideoThumbnail = PKVideoThumbnail || {};
 
 PKVideoThumbnail.createThumbnail = function ( source, target, options, success, failure )
 {
-  cordova.exec(success, failure,
-              "PKVideoThumbnail",
-              "createThumbnail",
-              [source, target, options]);
+    if (!source) {
+        throw new Error("Missing source path to video.");
+    }
+    if (!target) {
+        throw new Error("Missing target URI for thumbnail image.");
+    }
+    
+    var successCB = success;
+    var failureCB = failure;
+    var optionsToPass = options;
+    if (typeof optionsToPass === "function") {
+        // if options is a function, then we're being called the "old" way. In order
+        // to maintain some degree of compatibility, let's be nice and shift all the
+        // parameters in order for everything to still work.
+        failureCB = successCB;
+        successCB = failureCB;
+        optionsToPass = undefined;
+    }
+    if (!optionsToPass) {
+        optionsToPass = {};
+    }
+    
+    if (!successCB && typeof Promise === "function") {
+        // no callbacks provided, but we have a promise environment -- let's return
+        // a promise instead!
+        return new Promise(function (resolve, reject) {
+            cordova.exec(resolve, reject, "PKVideoThumbnail", "createThumbnail", [source, target, optionsToPass]);            
+        });
+    } else {
+        cordova.exec(successCB, failureCB, "PKVideoThumbnail", "createThumbnail", [source, target, optionsToPass]);
+    }
 }
 
 module.exports = PKVideoThumbnail;
