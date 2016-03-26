@@ -84,8 +84,8 @@ The `options` object can specify an alternate size for the thumbnail, and can al
 
 * `options.mode` -- the processing mode for the plugin.
     * `file` -- saves the thumbnail to the file specified. If not specified, this is the default.
-    * `array` -- returns an arraybuffer to the callback routine. In this case, `targetThumbnailPath` is ignored, but must be specified. You can use an empty string.
-    * `base64` -- returns a Base64-encoded string suitable for an inline image. `targetThumbnailPath` is ignored, but must be specified. You can use an empty string.
+    * `array` -- returns an arraybuffer to the callback routine. In this case, `targetThumbnailPath` is ignored, but must be specified. You can use an non-empty string like "callback" or "ignore".
+    * `base64` -- returns a Base64-encoded string suitable for an inline image. `targetThumbnailPath` is ignored, but must be specified. You can use an non-empty string  like "callback" or "ignore".
 * `options.position` -- the timestamp from which the thumbnail should be extracted. This is in seconds. Not supported on Android. 1s is the default.
 * `options.quality` -- the quality of the resulting JPEG from 0 - 1. 0.8 is the default.
 * `options.resize` -- resize the thumbnail whilst maintaining aspect ratio
