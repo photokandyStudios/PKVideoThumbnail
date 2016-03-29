@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.photokandy.videothumbnail"
-    version="1.0.1">
+    id="cordova-plugin-photokandy-video-thumbnail"
+    version="2.0.0">
     <engines>
     	<engine name="cordova" version=">=2.9.0" />
     </engines>
     <name>Video Thumbnail</name>
     <description>Create video thumbnails from video files; iOS 6+, Android 2.x+</description>
     <author>Kerri Shotts</author>
-    <keywords>video, thumbnail, ios, ios7, android</keywords>
+    <keywords>video, thumbnail, ios, android</keywords>
     <license>MIT</license>
-	<js-module src="www/PKVideoThumbnail.js" name="PKVideoThumbnail">
-		<clobbers target="window.PKVideoThumbnail" />
-	</js-module>
-	<platform name="ios">
-    	<!-- ios-specific elements -->
-		<header-file src="src/ios/PKVideoThumbnail.h" />
-		<source-file src="src/ios/PKVideoThumbnail.m" />
-                <framework src="MediaPlayer.framework" />
-		<config-file target="config.xml" parent="/widget/plugins">
-		<feature name="PKVideoThumbnail">
-			<param name="ios-package" value="PKVideoThumbnail"/>
-		</feature>
-		</config-file>
-	</platform>    
+    <dependency id="cordova-plugin-file" version="^4.0.0"/>
+    <js-module src="www/PKVideoThumbnail.js" name="PKVideoThumbnail">
+        <clobbers target="window.PKVideoThumbnail" />
+    </js-module>
+    <platform name="ios">
+        <!-- ios-specific elements -->
+        <header-file src="src/ios/PKVideoThumbnail.h" />
+        <source-file src="src/ios/PKVideoThumbnail.m" />
+        <framework src="MediaPlayer.framework" />
+        <config-file target="config.xml" parent="/widget/plugins">
+            <feature name="PKVideoThumbnail">
+                    <param name="ios-package" value="PKVideoThumbnail"/>
+            </feature>
+        </config-file>
+    </platform>
     <platform name="android">
         <!-- android-specific elements -->
         <config-file target="config.xml" parent="/*">

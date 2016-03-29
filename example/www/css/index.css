@@ -1,0 +1,49 @@
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
+html {
+    font-size: 100%;
+}
+
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    background-color:white;
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    height:100%;
+    margin:0px;
+    padding:0px;
+    width:100%;
+}
+
+.app {
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    -webkit-overflow-scrolling: touch;
+    overflow: scroll;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight:bold;
+}
+
+#console {
+    white-space: pre;
+    font-family: monospace;
+    background-color: #EFECE8;
+    overflow: scroll;
+    -webkit-overflow-scrolling: touch;
+    height: 10rem;
+}
+
+.thumbnail {
+    box-shadow: 0 0 10px gray;
+    margin: 1rem;
+}
+
+.thumbnail img {
+    width: 100%;
+}
