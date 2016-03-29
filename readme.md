@@ -63,8 +63,8 @@ It can also specify the processing mode of the plugin.
        You can use an non-empty string like "callback" or "ignore".
     * `base64` -- returns a Base64-encoded string suitable for an inline image. `targetThumbnailPath` is ignored, but must be specified. 
        You can use an non-empty string  like "callback" or "ignore".
-* `options.position` -- the timestamp from which the thumbnail should be extracted. This unit is in seconds. 
-  Not supported on Android. `1.0` seconds is the default.
+* `options.position` -- the timestamp from which the thumbnail should be extracted. This unit is in seconds. Not supported on
+  Android. `1.0` seconds is the default. Thanks to <https://github.com/nov9thgrp> for the inspiration.
 * `options.quality` -- the quality of the resulting JPEG from 0 - 1. 0.8 is the default, corresponding to 80%.
 * `options.resize` -- resize the thumbnail whilst maintaining aspect ratio
     * `options.resize.width` -- the maximum width of the resulting thumbnail (in pixels)
