@@ -42,10 +42,12 @@
         }
     } else {
         if ([path rangeOfString:@"://"].location == NSNotFound) {
-            return [NSURL URLWithString:[[@"file://" stringByAppendingString:[self.commandDelegate pathForResource:path]] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-            
-            //            return [NSURL URLWithString:[[@"file://localhost/" stringByAppendingString:path]
-            //                          stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            NSString *pathForResource = [self.commandDelegate pathForResource:path];
+            if (pathForResource) {
+                return [NSURL URLWithString:[[@"file://" stringByAppendingString:pathForResource] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            } else {
+                return NULL;
+            }
         }
         else {
             return [NSURL URLWithString:[path stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
@@ -58,18 +60,6 @@
 
     UIImage *thumbnail;
     NSURL *url = [self obtainURLForPath:sourcePath];
-    NSURL *target = [self obtainURLForPath:targetPath];
-    NSString *revisedTargetPath = [target.absoluteString stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-    
-    /*[[targetPath stringByReplacingOccurrencesOfString:@"file://" withString:@""] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    if ([sourcePath rangeOfString:@"://"].location == NSNotFound) {
-        url = [NSURL URLWithString:[[@"file://localhost" stringByAppendingString:sourcePath]
-                                    stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
-    else {
-        url = [NSURL URLWithString:[sourcePath stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
-    */
 
     // from http://stackoverflow.com/q/9145968 by Mx Gherkins
     // and http://www.catehuston.com/blog/2015/07/29/ios-getting-a-thumbnail-for-a-video/
@@ -115,12 +105,18 @@
 
     // if mode is file, we'll write it out to a file as a JPEG
     if ([[[options objectForKey:@"mode"] lowercaseString] isEqualToString:@"file"]) {
-        // write out the thumbnail; a return of NO will be a failure.
-        if([UIImageJPEGRepresentation(thumbnail, quality) writeToFile:revisedTargetPath atomically:YES]) {
-           return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat:@"%@", targetPath]];
+        NSURL *target = [self obtainURLForPath:targetPath];
+        if (target) {
+            NSString *revisedTargetPath = [target.absoluteString stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+            // write out the thumbnail; a return of NO will be a failure.
+            if([UIImageJPEGRepresentation(thumbnail, quality) writeToFile:revisedTargetPath atomically:YES]) {
+            return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat:@"%@", targetPath]];
+            } else {
+                return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Could not create thumbnail. Source: %@, Target: %@, Modified Target: %@", url, targetPath, revisedTargetPath]];
+            };
         } else {
-            return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Could not create thumbnail. Source: %@, Target: %@, Modified Target: %@", url, targetPath, revisedTargetPath]];
-        };
+            return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Target can't be in the bundle. Source: %@, Target: %@", url, targetPath]];
+        }
     } else {
         // return the image data to the callback
         NSData *imageData = UIImageJPEGRepresentation(thumbnail, quality);

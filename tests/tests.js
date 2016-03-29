@@ -3,11 +3,11 @@
         // Android doesn't support thumbnails from videos in android_asset
         // so we have to use local files. prepare by uploading the contents of the assets
         // directory to the avd, like so:
-        // adb push ../tests/assets/sample.3gp /data/user/0/com.photokandy.PKVideoThumbnail.example/files/files/sample.3gp
-        // adb push ../tests/assets/sample_3GPP2.3g2 /data/user/0/com.photokandy.PKVideoThumbnail.example/files/files/sample_3GPP2.3g2
-        // adb push ../tests/assets/sample_iTunes.mov /data/user/0/com.photokandy.PKVideoThumbnail.example/files/files/sample_iTunes.mov
-        // adb push ../tests/assets/sample_iPod.m4v /data/user/0/com.photokandy.PKVideoThumbnail.example/files/files/sample_iPod.m4v
-        // adb push ../tests/assets/sample_mpeg4.mp4 /data/user/0/com.photokandy.PKVideoThumbnail.example/files/files/sample_mpeg4.mp4
+        // adb push ../tests/assets/sample.3gp /data/user/0/com.photokandy.PKVideoThumbnail.runtests/files/files/sample.3gp
+        // adb push ../tests/assets/sample_3GPP2.3g2 /data/user/0/com.photokandy.PKVideoThumbnail.runtests/files/files/sample_3GPP2.3g2
+        // adb push ../tests/assets/sample_iTunes.mov /data/user/0/com.photokandy.PKVideoThumbnail.runtests/files/files/sample_iTunes.mov
+        // adb push ../tests/assets/sample_iPod.m4v /data/user/0/com.photokandy.PKVideoThumbnail.runtests/files/files/sample_iPod.m4v
+        // adb push ../tests/assets/sample_mpeg4.mp4 /data/user/0/com.photokandy.PKVideoThumbnail.runtests/files/files/sample_mpeg4.mp4
         describe('Video Thumbnail', function() {
             ["sample_iTunes.mov", "sample_iPod.m4v",// "sample_mpeg2.m2v",
              "sample_mpeg4.mp4", "sample.3gp", "sample_3GPP2.3g2"].map(function(fn) {

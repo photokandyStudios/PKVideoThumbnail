@@ -1,14 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.photokandy.PKVideoThumbnail.example" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>VideoThumbnailExample</name>
+<widget id="com.photokandy.PKVideoThumbnail.runtests" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>runTests</name>
     <description>
-        This is a sample project for the PKVideoThumbnail project. It is configured to execute the tests supplied with the plugin.
-        Build artifacts are not supplied; plugins and platforms will be downloaded and installed automatically (saved in config.xml).
+        A sample Apache Cordova application that responds to the deviceready event.
     </description>
-    <author email="kerrishotts@gmail.com" href="http://kerrishotts.github.io">
-        Kerri Shotts
+    <author email="dev@cordova.apache.org" href="http://cordova.io">
+        Apache Cordova Team
     </author>
-    <content src="index.html" />
+    <content src="cdvtests/index.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -26,7 +25,8 @@
     </platform>
     <engine name="ios" spec="~4.0.1" />
     <engine name="android" spec="~5.1.0" />
+    <plugin name="cordova-plugin-test-framework" spec="http://git-wip-us.apache.org/repos/asf/cordova-plugin-test-framework.git" />
     <plugin name="cordova-plugin-photokandy-video-thumbnail" spec=".." />
+    <plugin name="cordova-plugin-photokandy-video-thumbnail-tests" spec="../tests" />
     <plugin name="cordova-plugin-device" spec="~1.1.1" />
-    <plugin name="cordova-plugin-file-transfer" spec="~1.5.0" />
 </widget>

@@ -72,7 +72,7 @@ public class PKVideoThumbnail extends CordovaPlugin {
                 JSONObject options = args.getJSONObject(2);
 
                 String processingMode = options.optString("mode", "file");
-                int outputQuality = (int) options.optDouble("quality", 0.8) * 100;
+                int outputQuality = (int) (options.optDouble("quality", 0.8) * 100);
                 double position = options.optDouble("position", 1.0);
 
                 JSONObject resize = options.optJSONObject("resize");

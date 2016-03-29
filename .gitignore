@@ -2,3 +2,6 @@ example/hooks
 example/plugins
 example/platforms
 
+run-tests/hooks
+run-tests/plugins
+run-tests/platforms
