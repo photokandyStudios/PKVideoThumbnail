@@ -2,8 +2,8 @@
 <widget id="com.photokandy.PKVideoThumbnail.example" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>VideoThumbnailExample</name>
     <description>
-        This is a sample project for the PKVideoThumbnail project. It is configured to execute the tests supplied with the plugin.
-        Build artifacts are not supplied; plugins and platforms will be downloaded and installed automatically (saved in config.xml).
+        This is a simple demonstration of the video thumbnail plugin. It will download a video file and then display
+        an extracted frame using two methods: file-based and base64-encoded.
     </description>
     <author email="kerrishotts@gmail.com" href="http://kerrishotts.github.io">
         Kerri Shotts
@@ -26,7 +26,7 @@
     </platform>
     <engine name="ios" spec="~4.0.1" />
     <engine name="android" spec="~5.1.0" />
-    <plugin name="cordova-plugin-photokandy-video-thumbnail" spec=".." />
+    <plugin name="cordova-plugin-photokandy-video-thumbnail" spec="~2.0.0" />
     <plugin name="cordova-plugin-device" spec="~1.1.1" />
     <plugin name="cordova-plugin-file-transfer" spec="~1.5.0" />
 </widget>
