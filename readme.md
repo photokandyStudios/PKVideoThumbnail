@@ -25,7 +25,7 @@ Available on [Github](https://github.com/photokandyStudios/PKVideoThumbnail). Co
 Add the plugin using Cordova's CLI:
 
 ```
-cordova plugin cordova-plugin-photokandy-video-thumbnail --save
+cordova plugin add cordova-plugin-photokandy-video-thumbnail --save
 ```
 
 ## Features
