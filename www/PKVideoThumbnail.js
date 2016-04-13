@@ -38,7 +38,7 @@ PKVideoThumbnail.createThumbnail = function ( source, target, options, success, 
         // to maintain some degree of compatibility, let's be nice and shift all the
         // parameters in order for everything to still work.
         failureCB = successCB;
-        successCB = failureCB;
+        successCB = optionsToPass;
         optionsToPass = undefined;
     }
     if (!optionsToPass) {
