@@ -57,10 +57,19 @@
                                     // only run for tests where the passing result is
                                     // defined as true or false
                                     it(t[0] + " (callback)", function(done) {
-                                    window.PKVideoThumbnail.createThumbnail( basePath + fn,
-                                                                                "cdvfile://localhost/persistent/" + fn + "-" + i + ".jpg", t[1],
-                                                                            function(data) {finished(true,data,done);},
-                                                                            function(err) {finished(false,err,done);});
+                                        if (t[1] !== undefined) {
+                                            window.PKVideoThumbnail.createThumbnail(
+                                                basePath + fn,
+                                                "cdvfile://localhost/persistent/" + fn + "-" + i + ".jpg", t[1],
+                                                function(data) {finished(true,data,done);},
+                                                function(err) {finished(false,err,done);});
+                                        } else {
+                                            window.PKVideoThumbnail.createThumbnail(
+                                                basePath + fn,
+                                                "cdvfile://localhost/persistent/" + fn + "-" + i + ".jpg",
+                                                function(data) {finished(true,data,done);},
+                                                function(err) {finished(false,err,done);});
+                                        }
                                     });
                                     it(t[0] + " (promise)", function(done) {
                                         window.PKVideoThumbnail.createThumbnail( basePath + fn,
