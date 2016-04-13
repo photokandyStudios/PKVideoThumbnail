@@ -1,3 +1,8 @@
+# 2.1.0
+
+- Fixed success/failure callback reversal if no options were specified; fixes Issue #10
+  Thanks go to @benmcmaster!
+
 # 2.0.1
 
 - Fixed up `readme.md`
