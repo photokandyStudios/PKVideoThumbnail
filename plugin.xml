@@ -20,7 +20,7 @@
         <header-file src="src/ios/PKVideoThumbnail.h" />
         <source-file src="src/ios/PKVideoThumbnail.m" />
         <framework src="MediaPlayer.framework" />
-        <config-file target="config.xml" parent="/widget/plugins">
+        <config-file target="config.xml" parent="/*">
             <feature name="PKVideoThumbnail">
                     <param name="ios-package" value="PKVideoThumbnail"/>
             </feature>
