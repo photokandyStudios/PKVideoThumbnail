@@ -11,7 +11,7 @@
     <author>Kerri Shotts</author>
     <keywords>video, thumbnail, ios, android</keywords>
     <license>MIT</license>
-    <dependency id="cordova-plugin-file" version="^4.0.0"/>
+    <dependency id="cordova-plugin-file" version="^6.0.1"/>
     <js-module src="www/PKVideoThumbnail.js" name="PKVideoThumbnail">
         <clobbers target="window.PKVideoThumbnail" />
     </js-module>
