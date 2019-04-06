@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-photokandy-video-thumbnail",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Create video thumbnails from video files; iOS 6+, Android API 17+",
   "cordova": {
     "id": "cordova-plugin-photokandy-video-thumbnail",
